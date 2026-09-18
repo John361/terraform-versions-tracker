@@ -35,17 +35,17 @@ mod tests {
 
     #[test]
     fn test_cli_load_success() {
-        let args = vec!["vault-secrets", "--path", "/tmp"];
-
+        let args = vec!["terraform-versions-tracker", "--path", "/tmp"];
         let cli = Cli::try_load_from(args).unwrap();
+
         assert_eq!(cli.path, PathBuf::from("/tmp"));
     }
 
     #[test]
     fn test_cli_load_error() {
-        let args = vec!["vault-secrets", "--paths", "/tmp"];
-
+        let args = vec!["terraform-versions-tracker", "--paths", "/tmp"];
         let err = Cli::try_load_from(args).unwrap_err();
+
         assert_eq!(err.kind(), ErrorKind::UnknownArgument);
     }
 }
