@@ -45,19 +45,21 @@ impl Collector {
                 && let Some(file_name) = path.file_name()
                 && file_name.eq_ignore_ascii_case("versions.tf")
             {
-                let item = self.extract(path)?;
-                result.push(item);
+                let items = self.extract(path)?;
+                result.extend(items);
             }
         }
 
         Ok(result)
     }
 
-    fn extract(&self, path: &Path) -> Result<ProviderVersion> {
+    fn extract(&self, path: &Path) -> Result<Vec<ProviderVersion>> {
         let content =
             std::fs::read_to_string(path).context(format!("Failed to read {}", path.display()))?;
         let hcl: Body =
             hcl::from_str(&content).context(format!("Failed to parse hcl {}", path.display()))?;
+
+        let mut result = Vec::new();
 
         for block in hcl.blocks() {
             if block.identifier() == "terraform" {
@@ -81,7 +83,7 @@ impl Collector {
                                 }
                             }
 
-                            return Ok(ProviderVersion {
+                            result.push(ProviderVersion {
                                 name,
                                 source,
                                 version,
@@ -93,6 +95,6 @@ impl Collector {
             }
         }
 
-        Err(anyhow!("Could not find required providers"))
+        Ok(result)
     }
 }
