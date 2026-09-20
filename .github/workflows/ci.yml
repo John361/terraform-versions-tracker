@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
+    needs: [rust]
+    if: always()
+    steps:
+      - name: Check status
+        run: |
+          echo "All CI checks completed"
+          if [ "${{ needs.rust.result }}" != "success" ]; then
+            echo "Some jobs failed"
+            exit 1
+          fi
+
+  rust:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772
+        with:
+          toolchain: "stable"
+          components: clippy, rustfmt
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@f0d9c3887740aee45f6153b24b3a6b815192ec16
+
+      - name: Run cargo check
+        run: cargo check --all-targets --all-features
+
+      - name: Run cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+      - name: Run cargo test
+        run: cargo test --all-targets --all-features --verbose
