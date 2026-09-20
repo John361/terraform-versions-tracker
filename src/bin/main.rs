@@ -1,7 +1,8 @@
 use lib_tvt::app::run;
 
-fn main() {
-    if let Err(e) = run() {
+#[tokio::main]
+async fn main() {
+    if let Err(e) = run().await {
         tracing::error!("{e}");
     }
 }

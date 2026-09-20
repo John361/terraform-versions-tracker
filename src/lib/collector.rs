@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, anyhow};
@@ -10,6 +11,18 @@ pub struct ProviderVersion {
     pub source: String,
     pub version: String,
     pub path: PathBuf,
+}
+
+impl ProviderVersion {
+    fn group_by_source(values: Vec<ProviderVersion>) -> HashMap<String, Vec<ProviderVersion>> {
+        let mut map: HashMap<String, Vec<ProviderVersion>> = HashMap::new();
+
+        for pv in values {
+            map.entry(pv.source.clone()).or_default().push(pv);
+        }
+
+        map
+    }
 }
 
 pub struct Collector {
@@ -62,8 +75,8 @@ impl Collector {
 
                             for (k, v) in obj.iter() {
                                 match k.to_string().as_str() {
-                                    "source" => source = v.to_string(),
-                                    "version" => version = v.to_string(),
+                                    "source" => source = v.to_string().replace("\"", ""),
+                                    "version" => version = v.to_string().replace("\"", ""),
                                     _ => {}
                                 }
                             }
