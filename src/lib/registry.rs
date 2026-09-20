@@ -1,12 +1,20 @@
+use std::collections::HashMap;
+
 use anyhow::Result;
 use reqwest::Client;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct RegistryProviderResponse {
-    pub namespace: String,
-    pub name: String,
+    namespace: String,
+    name: String,
     pub version: String,
+}
+
+impl RegistryProviderResponse {
+    pub fn name(&self) -> String {
+        format!("{}/{}", self.namespace, self.name)
+    }
 }
 
 pub struct RegistryClient {
@@ -20,12 +28,15 @@ impl RegistryClient {
         }
     }
 
-    pub async fn do_requests(&self, sources: Vec<String>) -> Result<Vec<RegistryProviderResponse>> {
-        let mut result = Vec::new();
+    pub async fn do_requests(
+        &self,
+        sources: Vec<String>,
+    ) -> Result<HashMap<String, RegistryProviderResponse>> {
+        let mut result = HashMap::new();
 
         for source in sources.iter() {
             let item = self.do_request(source).await?;
-            result.push(item);
+            result.insert(source.to_string(), item);
         }
 
         Ok(result)
