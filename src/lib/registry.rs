@@ -4,8 +4,9 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct RegistryProviderResponse {
-    name: String,
-    version: String,
+    pub namespace: String,
+    pub name: String,
+    pub version: String,
 }
 
 pub struct RegistryClient {
@@ -33,9 +34,6 @@ impl RegistryClient {
     async fn do_request(&self, source: &str) -> Result<RegistryProviderResponse> {
         let (namespace, name) = source.split_once('/').unwrap();
         let url = format!("https://registry.terraform.io/v1/providers/{namespace}/{name}");
-
-        tracing::debug!(url = url.as_str(), "Fetching registry");
-
         let result: RegistryProviderResponse = self.client.get(url).send().await?.json().await?;
 
         Ok(result)

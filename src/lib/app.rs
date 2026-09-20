@@ -11,11 +11,11 @@ pub async fn run() -> Result<()> {
     let cli = Cli::load();
     let collector = Collector::new(cli.path);
     let collect = collector.collect()?;
-    // let sources = collect.keys().cloned().collect::<Vec<String>>();
+    let sources = collect.keys().cloned().collect::<Vec<String>>();
     let registry_client = RegistryClient::new();
-    // let registry_responses = registry_client.do_requests(sources).await?;
+    let registry_responses = registry_client.do_requests(sources).await?;
 
-    println!("{:#?}", collect);
+    println!("{:#?}", registry_responses);
 
     Ok(())
 }

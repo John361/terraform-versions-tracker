@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 use hcl::{Body, Expression};
 use walkdir::WalkDir;
 
@@ -34,7 +34,7 @@ impl Collector {
         Self { base_path }
     }
 
-    pub fn collect(&self) -> Result<Vec<ProviderVersion>> {
+    pub fn collect(&self) -> Result<HashMap<String, Vec<ProviderVersion>>> {
         let mut result = Vec::new();
 
         for entry in WalkDir::new(&self.base_path) {
@@ -50,7 +50,7 @@ impl Collector {
             }
         }
 
-        Ok(result)
+        Ok(ProviderVersion::group_by_source(result))
     }
 
     fn extract(&self, path: &Path) -> Result<Vec<ProviderVersion>> {
