@@ -8,7 +8,6 @@ use crate::registry::RegistryProviderResponse;
 
 pub struct ProviderReport {
     pub name: String,
-    pub source: String,
     pub current_versions: Vec<String>,
     pub latest_version: String,
     pub paths: Vec<PathBuf>,
@@ -49,7 +48,6 @@ impl TablePrinter {
 
             reports.push(ProviderReport {
                 name,
-                source: source.clone(),
                 current_versions,
                 latest_version: latest,
                 paths,
@@ -73,17 +71,15 @@ impl TablePrinter {
         for report in reports {
             let current = report.current_versions.join(", ");
 
-            let mut version_cell = Cell::new("");
-            if report
+            let version_cell = if report
                 .current_versions
                 .iter()
                 .all(|v| v == &report.latest_version)
             {
-                version_cell = Cell::new(format!("{} ✓", report.latest_version)).fg(Color::Green);
+                Cell::new(format!("{} ✓", report.latest_version)).fg(Color::Green)
             } else {
-                version_cell =
-                    Cell::new(format!("{} → {}", current, report.latest_version)).fg(Color::Red);
-            }
+                Cell::new(format!("{} → {}", current, report.latest_version)).fg(Color::Red)
+            };
 
             let paths_cell = Cell::new(
                 report

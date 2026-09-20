@@ -6,15 +6,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct RegistryProviderResponse {
-    namespace: String,
-    name: String,
     pub version: String,
-}
-
-impl RegistryProviderResponse {
-    pub fn name(&self) -> String {
-        format!("{}/{}", self.namespace, self.name)
-    }
 }
 
 pub struct RegistryClient {
